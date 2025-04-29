@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 
 export default function Login() {
@@ -9,17 +9,23 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [company, setCompany] = useState('')
   const [error, setError] = useState(null)
+  const [busy, setBusy] = useState(false)
 
   const handleSubmit = async e => {
     e.preventDefault()
+    setBusy(true)
+    setError(null)
     try {
       await login(email, password, company)
       navigate('/dashboard')
     } catch (err) {
-      setError('Login fehlgeschlagen: prüfe E-Mail, Passwort oder Firmenname')
+      console.error(err)
+      setError(err.response?.data?.message || 'Login fehlgeschlagen: prüfe E-Mail, Passwort oder Firmenname')
+    } finally {
+      setBusy(false)
     }
   }
-  
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <form
@@ -40,6 +46,7 @@ export default function Login() {
             onChange={e => setEmail(e.target.value)}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            disabled={busy}
           />
           <input
             type="password"
@@ -48,6 +55,7 @@ export default function Login() {
             onChange={e => setPassword(e.target.value)}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            disabled={busy}
           />
           <input
             type="text"
@@ -56,19 +64,21 @@ export default function Login() {
             onChange={e => setCompany(e.target.value)}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+            disabled={busy}
           />
         </div>
         <button
           type="submit"
-          className="w-full py-2 bg-primary text-white font-medium rounded hover:bg-primary/90 transition-colors"
+          disabled={busy}
+          className={`w-full py-2 rounded text-white ${busy ? 'bg-gray-400' : 'bg-primary hover:bg-primary/90'} transition-colors`}
         >
-          Login
+          {busy ? 'Bitte warten…' : 'Login'}
         </button>
         <p className="text-center text-sm">
           Noch kein Konto?{' '}
-          <a href="/register" className="text-primary hover:underline">
+          <Link to="/register" className="text-primary hover:underline">
             Registrieren
-          </a>
+          </Link>
         </p>
       </form>
     </div>

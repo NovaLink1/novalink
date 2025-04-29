@@ -1,51 +1,83 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect } from 'react'
 import axios from 'axios'
 
-export const AuthContext = createContext(null)
+export const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [tokens, setTokens] = useState({ access: null, refresh: null })
+  const [user, setUser]       = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('auth'))
-    if (saved) {
-      setUser({ id: saved.userId })
-      setTokens({ access: saved.access, refresh: saved.refresh })
-      axios.defaults.headers.common['Authorization'] = `Bearer ${saved.access}`
+    // Beim Start: falls schon ein Token da ist, User laden
+    const token = localStorage.getItem('token')
+    if (token) {
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`
+      axios.get('/auth/me')
+        .then(res => setUser(res.data))
+        .catch(() => {
+          localStorage.removeItem('token')
+          delete axios.defaults.headers.common.Authorization
+        })
+        .finally(() => setLoading(false))
+    } else {
+      setLoading(false)
     }
   }, [])
 
-  const login = async (email, password, companyName) => {
-    const response = await axios.post('/auth/login', {
-      email,
-      password,
-      company_name: companyName
-    })
-    const { access_token, refresh_token } = response.data
-    setTokens({ access: access_token, refresh: refresh_token })
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
-    const payload = JSON.parse(atob(access_token.split('.')[1]))
-    setUser({ id: payload.sub })
-    localStorage.setItem(
-      'auth',
-      JSON.stringify({
-        userId: payload.sub,
-        access: access_token,
-        refresh: refresh_token
-      })
-    )
+  // Login-Funktion: holt Token, dann holt User und gibt ihn zurück
+  async function login(email, password, company) {
+    // 1) Login-Request
+    const loginRes = await axios.post('/auth/login', { email, password, company })
+    const token    = loginRes.data.access_token
+
+    // 2) Token speichern
+    localStorage.setItem('token', token)
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`
+
+    // 3) aktuellen User abfragen
+    const userRes = await axios.get('/auth/me')
+    const userObj = userRes.data
+
+    // 4) in State setzen
+    setUser(userObj)
+
+    // 5) und User weitergeben
+    return userObj
   }
 
-  const logout = () => {
+  // Registration analog: Token + User holen
+  async function register(form) {
+    const regRes = await axios.post('/auth/register', form)
+    const token  = regRes.data.access_token
+
+    localStorage.setItem('token', token)
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`
+
+    const userRes = await axios.get('/auth/me')
+    const userObj = userRes.data
+
+    setUser(userObj)
+    return userObj
+  }
+
+  // Profil-Setup abschließen
+  async function completeProfile(profileData) {
+    const res = await axios.post('/auth/profile', profileData)
+    setUser(res.data)
+    return res.data
+  }
+
+  function logout() {
+    localStorage.removeItem('token')
+    delete axios.defaults.headers.common.Authorization
     setUser(null)
-    setTokens({ access: null, refresh: null })
-    delete axios.defaults.headers.common['Authorization']
-    localStorage.removeItem('auth')
   }
 
   return (
-    <AuthContext.Provider value={{ user, tokens, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, register, completeProfile, logout }}
+    >
       {children}
     </AuthContext.Provider>
   )

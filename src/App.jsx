@@ -1,30 +1,30 @@
 // src/App.jsx
 import React, { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider } from './context/AuthContext'    // ✅ der richtige Context
 import PrivateRoute from './components/PrivateRoute'
 
-import LandingPage    from './components/LandingPage'
-import Login          from './components/Login'
-import Registration   from './components/Registration'
-import ProfileSetup   from './components/ProfileSetup'
-import Dashboard      from './components/Dashboard'
+import LandingPage  from './components/LandingPage'
+import Login        from './components/Login'
+import Registration from './components/Registration'
+import ProfileSetup from './components/ProfileSetup'
+import Dashboard    from './components/Dashboard'
 
-// Lazy load feature modules
 const AppStore = lazy(() => import('./components/AppStore'))
 const MyApps   = lazy(() => import('./components/MyApps'))
 
 export default function App() {
   return (
-    <AuthProvider>
+    <AuthProvider>           {/* ← hier außen */}
       <Router>
         <Suspense fallback={<div className="p-8 text-center">Lädt…</div>}>
           <Routes>
+            {/* deine Public-Routes */}
             <Route path="/" element={<LandingPage />} />
-
             <Route path="/register" element={<Registration />} />
-            <Route path="/login"    element={<Login />} />
+            <Route path="/login" element={<Login />} />
 
+            {/* geschützte Routes */}
             <Route
               path="/profile-setup"
               element={
@@ -33,7 +33,6 @@ export default function App() {
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/store/*"
               element={
@@ -42,7 +41,6 @@ export default function App() {
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/my-apps"
               element={
@@ -51,7 +49,6 @@ export default function App() {
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/dashboard"
               element={
@@ -61,10 +58,11 @@ export default function App() {
               }
             />
 
+            {/* Catch-all */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </Router>
-    </AuthProvider>
+    </AuthProvider>          
   )
 }
