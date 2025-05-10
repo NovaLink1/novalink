@@ -1,15 +1,15 @@
 // tailwind.config.js
-export default {
+module.exports = {
   content: [
     './index.html',
-    './src/**/*.{js,jsx,ts,tsx}',
+    './src/**/*.{vue,js,ts,jsx,tsx,html,css}',  // ✏️ hier auch .vue & .css aufnehmen
   ],
   theme: {
     extend: {
       colors: {
-        primary:   '#1d4ed8',
-        secondary: '#f59e0b',
-        accent:    '#10b981',
+        'nn-indigo':    '#3B3F99',
+        'nn-neon-teal': '#2FE1C6',
+        'nn-darkgray':  '#2B2B2B',
       },
     },
   },

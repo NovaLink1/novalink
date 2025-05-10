@@ -1,33 +1,25 @@
 {
-  "name": "frontend",
+  "name": "novalink-frontend",
+  "version": "0.1.0",
   "private": true,
-  "version": "1.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "dev":           "vite",
+    "build":         "vite build",                         
+    "build:staging": "vite build --mode staging",          
+    "build:prod":      "vite build --mode production",
+    "build:production":"vite build --mode production",      
+    "serve":         "vite preview"                        
   },
   "dependencies": {
-    "axios": "^1.9.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.5.2"
+    "axios": "^1.3.0",
+    "vue": "^3.2.0",
+    "vue-router": "^4.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "@tailwindcss/postcss": "^4.1.4",
-    "@tailwindcss/vite": "^4.1.4",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-vue": "^5.2.3",
     "autoprefixer": "^10.4.21",
-    "eslint": "^9.0.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
     "postcss": "^8.5.3",
-    "tailwindcss": "^4.1.4",
-    "vite": "^6.3.1"
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.3.4"
   }
 }

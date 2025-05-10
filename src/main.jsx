@@ -1,13 +1,23 @@
 // src/main.jsx
-import './index.css'
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import './assets/tailwind.css'
+// (optional) eigene Ergänzungen
+// import './index.css'
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
 import axios from 'axios'
-import App from './App'
 
-// Prod: /api → nginx → FastAPI
-// Dev:  /api → vite.config.js → 127.0.0.1:8000
-axios.defaults.baseURL = import.meta.env.PROD ? '/' : '/';
+// axios-Grundsetup …
 
-const root = ReactDOM.createRoot(document.getElementById('root'))
-root.render(<App />)
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '/api'
+
+
+const token = localStorage.getItem('token')
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+}
+
+const app = createApp(App)
+app.use(router)
+app.mount('#app')
+

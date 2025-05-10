@@ -1,68 +1,29 @@
 // src/App.jsx
-import React, { lazy, Suspense } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'    // ✅ der richtige Context
-import PrivateRoute from './components/PrivateRoute'
+import React from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import Header from './components/Header'
+import Dashboard from './pages/Dashboard'
+import Settings from './pages/Settings'
+import Register from './pages/Register'
 
-import LandingPage  from './components/LandingPage'
-import Login        from './components/Login'
-import Registration from './components/Registration'
-import ProfileSetup from './components/ProfileSetup'
-import Dashboard    from './components/Dashboard'
-
-const AppStore = lazy(() => import('./components/AppStore'))
-const MyApps   = lazy(() => import('./components/MyApps'))
+function PrivateRoute({ children }) {
+  const { user } = useAuth()
+  return user ? children : <Navigate to="/" replace />
+}
 
 export default function App() {
   return (
-    <AuthProvider>           {/* ← hier außen */}
-      <Router>
-        <Suspense fallback={<div className="p-8 text-center">Lädt…</div>}>
-          <Routes>
-            {/* deine Public-Routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/register" element={<Registration />} />
-            <Route path="/login" element={<Login />} />
-
-            {/* geschützte Routes */}
-            <Route
-              path="/profile-setup"
-              element={
-                <PrivateRoute>
-                  <ProfileSetup />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/store/*"
-              element={
-                <PrivateRoute>
-                  <AppStore />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/my-apps"
-              element={
-                <PrivateRoute>
-                  <MyApps />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-
-            {/* Catch-all */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </Router>
-    </AuthProvider>          
+    <AuthProvider>
+      <BrowserRouter>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/settings" element={<PrivateRoute><Settings/></PrivateRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }

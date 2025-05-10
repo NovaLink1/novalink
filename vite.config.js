@@ -1,26 +1,36 @@
-// vite.config.js
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [vue()],
+  css: {
+    // Nutze PostCSS-Konfig aus der Datei postcss.config.js
+    postcss: './postcss.config.js',
+  },
   server: {
     proxy: {
-      // 1) /api/auth/* → http://127.0.0.1:8000/auth/*
-      '/api/auth': {
-        target: 'http://127.0.0.1:8000',
+      '/auth': {
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
-        rewrite: path => path.replace(/^\/api\/auth/, '/auth')
       },
-
-      // 2) /api/apps/* → http://127.0.0.1:8000/apps/*
-      '/api/apps': {
-        target: 'http://127.0.0.1:8000',
+      '/user': {
+        // Proxy für alle /user-Requests (z.B. /user/profile)
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
-        rewrite: path => path.replace(/^\/api\/apps/, '/apps')
-      }
-    }
-  }
+      },
+      '/users': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      // Erleichtert Importe, z.B. @/components statt ../../components
+      '@': '/src',
+    },
+  },
 })
