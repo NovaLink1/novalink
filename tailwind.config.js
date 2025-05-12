@@ -1,8 +1,9 @@
 // tailwind.config.js
 module.exports = {
+  darkMode: 'class', // 🌙 Darkmode über CSS-Klasse aktivieren
   content: [
     './index.html',
-    './src/**/*.{vue,js,ts,jsx,tsx,html,css}',  // ✏️ hier auch .vue & .css aufnehmen
+    './src/**/*.{vue,js,ts,jsx,tsx,html,css}',  // ✏️ alles abgedeckt
   ],
   theme: {
     extend: {
