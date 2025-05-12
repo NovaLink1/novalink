@@ -55,7 +55,7 @@
             <li><button class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" title="NovaAI">A</button></li>
             <li><button class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" title="NovaMail">M</button></li>
             <li><button @click="toggleScreensaver" class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" title="Screensaver aktivieren">🌙</button></li>
-            <li><button @click="() => {}" class="w-full h-10 bg-red-100 text-red-600 rounded-full text-sm font-bold hover:bg-red-600 hover:text-white transition" title="Logout">⎋</button></li>
+            <li><button  @click="logout"class="w-full h-10 bg-red-100 text-red-600 rounded-full text-sm font-bold hover:bg-red-600 hover:text-white transition" title="Logout">⎋</button></li>
             <li><button @click="toggleDarkMode" class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" :title="darkMode ? 'Hellmodus' : 'Dunkelmodus'">{{ darkMode ? '☀' : '🌙' }}</button></li>
           </ul>
         </div>
@@ -74,7 +74,8 @@
         <div class="pt-4 border-t border-gray-200 dark:border-gray-600" v-if="!collapsed">
           <button
             class="w-full px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-600 hover:text-white transition"
-            @click="() => {}"
+            @click="logout"
+
           >
             Logout
           </button>
@@ -193,5 +194,11 @@ onBeforeUnmount(() => {
 function goToEdit() {
   router.push({ name: 'EditProfile' })
 }
+
+function logout() {
+  localStorage.removeItem('token')
+  router.push('/') // oder dein Login-Routenname
+}
+
 </script>
 
