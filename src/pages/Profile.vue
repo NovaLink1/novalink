@@ -59,7 +59,7 @@
 
 <script setup>
 import { reactive, onMounted } from 'vue'
-import axios from 'axios'
+import api from '@/api.js'
 
 const user = reactive({
   name: '',
@@ -70,7 +70,7 @@ const user = reactive({
 
 onMounted(async () => {
   try {
-    const { data } = await axios.get('/user/profile')
+     const { data } = await api.get('/users/profile')
     Object.assign(user, data)
   } catch (error) {
     console.error('Fehler beim Laden des Profils', error)
@@ -79,7 +79,7 @@ onMounted(async () => {
 
 async function saveProfile() {
   try {
-    await axios.put('/user/profile', user)
+    await api.put('/users/profile', user)
     alert('Profil erfolgreich gespeichert')
   } catch (error) {
     alert('Fehler beim Speichern des Profils')

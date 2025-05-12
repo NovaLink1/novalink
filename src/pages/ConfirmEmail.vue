@@ -1,47 +1,33 @@
 <template>
   <div class="confirm-container">
     <h1>E-Mail Bestätigung</h1>
-
-    <p v-if="loading">⏳ Bestätigung wird verarbeitet...</p>
     <p v-if="message" class="success">{{ message }}</p>
     <p v-if="error" class="error">{{ error }}</p>
-
-    <router-link v-if="!loading && !message" to="/login">Zum Login</router-link>
+    <router-link to="/login">Zum Login</router-link>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import api from '@/api.js'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
 
 const route = useRoute()
-const router = useRouter()
-
 const message = ref('')
 const error = ref('')
-const loading = ref(true)
 
 onMounted(async () => {
-  const token = route.query.token
+  const token = route.query.token // ✅ Korrekte Stelle für Token aus Query
   if (!token) {
     error.value = '❌ Kein Token in der URL gefunden.'
-    loading.value = false
     return
   }
 
   try {
-    const res = await api.get(`/auth/confirm?token=${token}`)
-    message.value = res.data.message || '✅ Deine E-Mail wurde erfolgreich bestätigt.'
-
-    // ➤ Auto-Redirect nach 3 Sekunden
-    setTimeout(() => {
-      router.push('/login')
-    }, 3000)
+    const res = await axios.get(`/auth/confirm?token=${token}`)
+    message.value = res.data.message || '✅ Bestätigung erfolgreich.'
   } catch (err) {
     error.value = err.response?.data?.detail || '❌ Fehler bei der Bestätigung.'
-  } finally {
-    loading.value = false
   }
 })
 </script>

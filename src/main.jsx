@@ -7,9 +7,10 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 
+
 // axios-Grundsetup …
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || '/api'
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || ''
 
 
 const token = localStorage.getItem('token')

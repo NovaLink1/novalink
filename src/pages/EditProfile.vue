@@ -62,7 +62,7 @@
   <script setup>
   import { reactive, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
-  import axios from 'axios'
+  import api from '@/api.js'
   
   const router = useRouter()
   const form = reactive({
@@ -76,7 +76,7 @@
   
   onMounted(async () => {
     try {
-      const { data } = await axios.get('/users/profile')
+      const { data } = await api.get('/users/profile')
       Object.assign(form, data)
     } catch (e) {
       if (!(e.response && e.response.status === 404)) 
@@ -87,7 +87,7 @@
   async function saveProfile() {
     try {
       // PUT statt POST
-      await axios.put('/users/profile', form)
+      await api.put('/users/profile', form)
       router.push({ name: 'UserProfile' })
     } catch (e) {
       console.error('Fehler beim Speichern des Profils', e)

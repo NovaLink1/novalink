@@ -13,7 +13,7 @@ const routes = [
   { path: '/',            component: LandingPage, name: 'Landing' },
   { path: '/login',       redirect: '/' },
   { path: '/register',    component: Register,    name: 'Register' },
-  { path: '/auth/confirm', component: EmailConfirm, name: 'ConfirmEmail' }, // <-- NEU
+  { path: '/auth/confirm', component: EmailConfirm, name: 'EmailConfirm' }, // <-- NEU
   // Profil-Ansicht, Anzeige der Daten
   { path: '/userprofile',  component: UserProfile, name: 'UserProfile', meta: { requiresAuth: true } },
   // Profil bearbeiten (optional)

@@ -11,11 +11,9 @@
   </div>
 </template>
 
-  
-
 <script setup>
 import { reactive, ref } from 'vue'
-import axios from 'axios'
+import api from '@/api.js'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -25,12 +23,10 @@ const error = ref('')
 async function onSubmit() {
   error.value = ''
   try {
-    const { data } = await axios.post('/auth/login', form)
-    // Store token
+    const { data } = await api.post('/auth/login', form)
+    // Speichere das Token im LocalStorage
     localStorage.setItem('token', data.access_token)
-    // Set default Authorization header for future requests
-    axios.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`
-    // Redirect to profile
+    // Weiterleitung zum Profil
     router.push('/userprofile')
   } catch (err) {
     error.value = err.response?.data?.detail || 'Fehler beim Login.'
