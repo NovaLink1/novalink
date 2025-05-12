@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="min-h-screen bg-gray-100 relative">
     <!-- Header -->
     <div class="relative h-64 bg-nn-indigo">
       <div class="absolute bottom-0 left-0 p-6 text-white">
@@ -50,8 +50,18 @@
           </ul>
         </div>
 
+        <!-- Screensaver Button -->
+        <div class="mb-4" v-if="!collapsed">
+          <button
+            @click="toggleScreensaver"
+            class="w-full px-4 py-2 bg-gray-100 text-gray-800 rounded hover:bg-nn-indigo hover:text-white transition"
+          >
+            Screensaver {{ screensaverActive ? 'deaktivieren' : 'aktivieren' }}
+          </button>
+        </div>
+
         <!-- Logout -->
-        <div class="mt-6 pt-4 border-t border-gray-200" v-if="!collapsed">
+        <div class="pt-4 border-t border-gray-200" v-if="!collapsed">
           <button
             class="w-full px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-600 hover:text-white transition"
             @click="() => {}"
@@ -112,6 +122,15 @@
         </div>
       </main>
     </div>
+
+    <!-- Screensaver Overlay -->
+    <div
+      v-if="screensaverActive"
+      class="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center cursor-pointer"
+      @click="toggleScreensaver"
+    >
+      <img src="/Screensaver.png" alt="Screensaver" class="max-h-full max-w-full object-contain" />
+    </div>
   </div>
 </template>
 
@@ -131,6 +150,11 @@ const user = ref({
 
 const collapsed = ref(false)
 const showProfile = ref(true)
+const screensaverActive = ref(false)
+
+function toggleScreensaver() {
+  screensaverActive.value = !screensaverActive.value
+}
 
 onMounted(async () => {
   try {
