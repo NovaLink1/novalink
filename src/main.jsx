@@ -18,6 +18,19 @@ if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 
+// Systembasierten Darkmode anwenden (wenn kein manuelles Theme gesetzt ist)
+const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)')
+
+function applySystemTheme(e) {
+  if (!localStorage.getItem('theme')) {
+    document.documentElement.classList.toggle('dark', e.matches)
+  }
+}
+
+applySystemTheme(systemPrefersDark)
+systemPrefersDark.addEventListener('change', applySystemTheme)
+
+
 const app = createApp(App)
 app.use(router)
 app.mount('#app')

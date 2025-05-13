@@ -69,11 +69,69 @@
             {{ collapsed ? '▶' : '◀ Sidebar' }}
           </button>
           <ul class="space-y-2" v-if="!collapsed">
-            <li><button class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition">NovaLead</button></li>
-            <li><button class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition">NovaFinance</button></li>
+            <li>
+  <button
+    @click="currentApp = 'lead'"
+    class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
+  >
+    NovaLead
+  </button>
+</li>
+
+
+          <li>
+            <button
+             @click="currentApp ='finance'"
+              class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
+              >
+                 NovaFinance
+            </button>
+          </li>
+
             <li><button class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition">NovaAI</button></li>
-            <li><button class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition">NovaMail</button></li>
-            <li><button @click="toggleDarkMode" class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition">{{ darkMode ? '☀ Hellmodus' : '🌙 Dunkelmodus' }}</button></li>
+            <li>
+  <button
+    @click="currentApp='/mail'" 
+    class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
+  >
+    NovaMail
+  </button>
+</li>
+
+            <li class="relative">
+  <button
+    @click="showThemeDropdown = !showThemeDropdown"
+    class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition text-left"
+  >
+    <span v-if="theme === 'light'">☀ Hellmodus</span>
+    <span v-else-if="theme === 'dark'">🌙 Dunkelmodus</span>
+    <span v-else>🖥️ Systemmodus</span>
+  </button>
+
+  <!-- Dropdown-Menü -->
+  <ul
+    v-if="showThemeDropdown"
+    class="absolute z-50 mt-1 left-0 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow text-sm"
+  >
+    <li>
+      <button @click="setTheme('light')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">
+        ☀ Hellmodus
+      </button>
+    </li>
+    <li>
+      <button @click="setTheme('dark')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">
+        🌙 Dunkelmodus
+      </button>
+    </li>
+    <li>
+      <button @click="setTheme('system')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">
+        🖥️ Systemmodus
+      </button>
+    </li>
+  </ul>
+</li>
+
+
           </ul>
           <ul class="space-y-2" v-else>
             <li><button class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" title="NovaLead">L</button></li>
@@ -125,6 +183,16 @@
         </div>
       </main>
     </div>
+    <!-- Screensaver Overlay -->
+  <div
+    v-if="screensaverActive"
+    class="fixed inset-0 z-50 bg-black flex items-center justify-center"
+    @click="screensaverActive = false"
+  >
+    <img src="/Screensaver.png" alt="Screensaver" class="max-w-full max-h-full object-contain" />
+   </div>
+
+
   </div>
 </template>
 
@@ -139,7 +207,8 @@ const user = ref({})
 const collapsed = ref(false)
 const showProfile = ref(true)
 const screensaverActive = ref(false)
-const darkMode = ref(false)
+const theme = ref('system') // system, light, dark
+const showThemeDropdown = ref(false)
 const showAvatarModal = ref(false)
 const previewUrl = ref(null)
 const selectedFile = ref(null)
@@ -169,16 +238,12 @@ async function confirmUpload() {
     formData.append('file', selectedFile.value)
 
     const response = await api.post('/users/upload-avatar', formData, {
-  headers: {
-    'Content-Type': 'multipart/form-data'
-  }
-});
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
 
-
-
-    // Avatar-URL setzen + Cache umgehen
     user.value.avatar_url = `${response.data.avatar_url}?t=${Date.now()}`
-
     alert('Avatar wurde erfolgreich hochgeladen.')
     showAvatarModal.value = false
   } catch (error) {
@@ -192,15 +257,30 @@ function toggleScreensaver() {
   resetInactivityTimer()
 }
 
-function toggleDarkMode() {
-  darkMode.value = !darkMode.value
+function applyTheme() {
   const root = document.documentElement
-  if (darkMode.value) {
+  if (theme.value === 'dark') {
     root.classList.add('dark')
-    localStorage.setItem('theme', 'dark')
-  } else {
+  } else if (theme.value === 'light') {
     root.classList.remove('dark')
+  } else {
+    root.classList.toggle('dark', window.matchMedia('(prefers-color-scheme: dark)').matches)
+  }
+}
+
+function setTheme(value) {
+  theme.value = value
+  showThemeDropdown.value = false
+
+  if (value === 'dark') {
+    localStorage.setItem('theme', 'dark')
+    document.documentElement.classList.add('dark')
+  } else if (value === 'light') {
     localStorage.setItem('theme', 'light')
+    document.documentElement.classList.remove('dark')
+  } else {
+    localStorage.removeItem('theme')
+    applyTheme()
   }
 }
 
@@ -235,10 +315,13 @@ onMounted(async () => {
 
   setupInactivityDetection()
 
-  if (localStorage.getItem('theme') === 'dark') {
-    darkMode.value = true
-    document.documentElement.classList.add('dark')
+  const saved = localStorage.getItem('theme')
+  if (saved === 'dark' || saved === 'light') {
+    theme.value = saved
+  } else {
+    theme.value = 'system'
   }
+  applyTheme()
 })
 
 onBeforeUnmount(() => {
@@ -254,6 +337,8 @@ function logout() {
   router.push('/')
 }
 </script>
+
+
 
 
 <style scoped>
