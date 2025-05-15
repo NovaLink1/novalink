@@ -53,113 +53,140 @@
 
     <!-- Hauptlayout -->
     <div class="flex">
-      <!-- Sidebar -->
-      <aside
-        :class="[
-          'h-[calc(100vh-16rem)] bg-white dark:bg-nn-darkgray dark:text-white shadow-lg p-4 transition-all duration-300 flex flex-col justify-between overflow-y-auto',
-          collapsed ? 'w-20' : 'w-64'
-        ]"
-      >
-        <!-- Toggle & App Buttons -->
-        <div>
-          <button
-            @click="collapsed = !collapsed"
-            class="mb-4 px-2 py-1 bg-nn-indigo text-white rounded w-full hover:bg-nn-neon-teal transition text-sm"
-          >
-            {{ collapsed ? '▶' : '◀ Sidebar' }}
-          </button>
-          <ul class="space-y-2" v-if="!collapsed">
-            <li>
-  <button
-    @click="currentApp = 'lead'"
-    class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
-  >
-    NovaLead
-  </button>
-</li>
+<aside
+  :class="[
+    'h-[calc(100vh-16rem)] bg-white dark:bg-nn-darkgray dark:text-white shadow-lg p-4 transition-all duration-300 flex flex-col justify-between overflow-y-auto',
+    collapsed ? 'w-20' : 'w-64'
+  ]"
+>
+  <!-- Toggle & App Buttons -->
+  <div>
+    <button
+      @click="collapsed = !collapsed"
+      class="mb-4 px-2 py-1 bg-nn-indigo text-white rounded w-full hover:bg-nn-neon-teal transition text-sm"
+    >
+      {{ collapsed ? '▶' : '◀ Sidebar' }}
+    </button>
 
+    <!-- Expanded Sidebar -->
+    <ul class="space-y-2" v-if="!collapsed">
+      <li v-for="app in [
+          { key: 'lead', label: 'NovaLead' },
+          { key: 'finance', label: 'NovaFinance' },
+          { key: 'ai', label: 'NovaAI' },
+          { key: 'mail', label: 'NovaMail' }
+        ]" :key="app.key">
+        <button
+          @click="currentApp = app.key"
+          :class="[
+            'w-full text-left px-4 py-2 rounded transition',
+            currentApp === app.key
+              ? 'bg-nn-indigo text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-nn-indigo hover:text-white'
+          ]"
+        >
+          {{ app.label }}
+        </button>
+      </li>
 
-          <li>
-            <button
-             @click="currentApp ='finance'"
-              class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
-              >
-                 NovaFinance
-            </button>
-          </li>
+      <!-- Theme Dropdown -->
+      <li class="relative">
+        <button
+          @click="showThemeDropdown = !showThemeDropdown"
+          class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition text-left"
+        >
+          <span v-if="theme === 'light'">☀ Hellmodus</span>
+          <span v-else-if="theme === 'dark'">🌙 Dunkelmodus</span>
+          <span v-else>🖥️ Systemmodus</span>
+        </button>
+        <ul
+          v-if="showThemeDropdown"
+          class="absolute z-50 mt-1 left-0 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow text-sm"
+        >
+          <li><button @click="setTheme('light')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">☀ Hellmodus</button></li>
+          <li><button @click="setTheme('dark')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">🌙 Dunkelmodus</button></li>
+          <li><button @click="setTheme('system')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">🖥️ Systemmodus</button></li>
+        </ul>
+      </li>
+    </ul>
 
-            <li><button class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition">NovaAI</button></li>
-            <li>
-  <button
-    @click="currentApp='/mail'" 
-    class="w-full text-left px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
-  >
-    NovaMail
-  </button>
-</li>
+    <!-- Collapsed Sidebar -->
+    <ul class="space-y-2" v-else>
+      <li v-for="app in [
+          { key: 'lead', label: 'L' },
+          { key: 'finance', label: 'F' },
+          { key: 'ai', label: 'A' },
+          { key: 'mail', label: 'M' }
+        ]" :key="app.key">
+        <button
+          @click="currentApp = app.key"
+          :class="[
+            'w-full h-10 rounded-full text-sm font-bold transition',
+            currentApp === app.key
+              ? 'bg-nn-indigo text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-nn-indigo hover:text-white'
+          ]"
+          :title="`Nova${app.label === 'L' ? 'Lead' : app.label === 'F' ? 'Finance' : app.label === 'A' ? 'AI' : 'Mail'}`"
+        >
+          {{ app.label }}
+        </button>
+      </li>
+      <li>
+        <button
+          @click="toggleScreensaver"
+          class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition"
+          title="Screensaver aktivieren"
+        >🌙</button>
+      </li>
+      <li>
+        <button
+          @click="logout"
+          class="w-full h-10 bg-red-100 text-red-600 rounded-full text-sm font-bold hover:bg-red-600 hover:text-white transition"
+          title="Logout"
+        >⎋</button>
+      </li>
+      <li>
+        <button
+          @click="toggleDarkMode"
+          class="w-full h-10 rounded-full text-sm font-bold transition"
+          :class="[
+            'transition',
+            theme === 'dark'
+              ? 'bg-nn-indigo text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-nn-indigo hover:text-white'
+          ]"
+          :title="theme === 'dark' ? 'Hellmodus' : 'Dunkelmodus'"
+        >
+          <span v-if="theme === 'dark'">☀</span>
+          <span v-else>🌙</span>
+        </button>
+      </li>
+    </ul>
+  </div>
 
-            <li class="relative">
-  <button
-    @click="showThemeDropdown = !showThemeDropdown"
-    class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition text-left"
-  >
-    <span v-if="theme === 'light'">☀ Hellmodus</span>
-    <span v-else-if="theme === 'dark'">🌙 Dunkelmodus</span>
-    <span v-else>🖥️ Systemmodus</span>
-  </button>
+  <!-- Screensaver Button -->
+  <div class="mb-4" v-if="!collapsed">
+    <button
+      @click="toggleScreensaver"
+      class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
+    >
+      Screensaver {{ screensaverActive ? 'deaktivieren' : 'aktivieren' }}
+    </button>
+  </div>
 
-  <!-- Dropdown-Menü -->
-  <ul
-    v-if="showThemeDropdown"
-    class="absolute z-50 mt-1 left-0 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow text-sm"
-  >
-    <li>
-      <button @click="setTheme('light')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">
-        ☀ Hellmodus
-      </button>
-    </li>
-    <li>
-      <button @click="setTheme('dark')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">
-        🌙 Dunkelmodus
-      </button>
-    </li>
-    <li>
-      <button @click="setTheme('system')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">
-        🖥️ Systemmodus
-      </button>
-    </li>
-  </ul>
-</li>
+  <!-- Logout Button -->
+  <div class="pt-4 border-t border-gray-200 dark:border-gray-600" v-if="!collapsed">
+    <button
+      @click="logout"
+      class="w-full px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-600 hover:text-white transition"
+    >
+      Logout
+    </button>
+  </div>
+</aside>
 
+ 
 
-          </ul>
-          <ul class="space-y-2" v-else>
-            <li><button class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" title="NovaLead">L</button></li>
-            <li><button class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" title="NovaFinance">F</button></li>
-            <li><button class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" title="NovaAI">A</button></li>
-            <li><button class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" title="NovaMail">M</button></li>
-            <li><button @click="toggleScreensaver" class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" title="Screensaver aktivieren">🌙</button></li>
-            <li><button @click="logout" class="w-full h-10 bg-red-100 text-red-600 rounded-full text-sm font-bold hover:bg-red-600 hover:text-white transition" title="Logout">⎋</button></li>
-            <li><button @click="toggleDarkMode" class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition" :title="darkMode ? 'Hellmodus' : 'Dunkelmodus'">{{ darkMode ? '☀' : '🌙' }}</button></li>
-          </ul>
-        </div>
-        <div class="mb-4" v-if="!collapsed">
-          <button
-            @click="toggleScreensaver"
-            class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
-          >
-            Screensaver {{ screensaverActive ? 'deaktivieren' : 'aktivieren' }}
-          </button>
-        </div>
-        <div class="pt-4 border-t border-gray-200 dark:border-gray-600" v-if="!collapsed">
-          <button
-            class="w-full px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-600 hover:text-white transition"
-            @click="logout"
-          >
-            Logout
-          </button>
-        </div>
-      </aside>
       <!-- Hauptinhalt -->
       <main class="flex-1 px-6 mt-32 bg-white dark:bg-nn-darkgray text-black dark:text-white">
         <div class="flex justify-end mb-4">
@@ -181,6 +208,10 @@
             <button @click="goToEdit" class="px-4 py-2 bg-nn-indigo text-white rounded-lg hover:bg-nn-neon-teal transition dark:bg-gray-700 dark:hover:bg-nn-neon-teal">Profil bearbeiten</button>
           </div>
         </div>
+        <!-- Arbeitsbereich: hier werden die Apps eingeblendet -->
+        <div v-else class="mt-6">
+          <component :is="currentComponent" />
+        </div>
       </main>
     </div>
     <!-- Screensaver Overlay -->
@@ -197,11 +228,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api.js'
 
+import NovaLead    from '@/views/NovaLead.vue'
+import NovaFinance from '@/views/NovaFinance.vue'
+import NovaMail    from '@/views/NovaMail.vue'
+// import NovaAI      from '@/views/NovaAI.vue'  // nur, wenn du NovaAI brauchst
+
 const router = useRouter()
+
+// **1. Aktuelle App definieren**
+const currentApp = ref('lead')
+
+// **2. Mapping von Schlüssel zu Komponente**
+const appComponents = {
+  lead:    NovaLead,
+  finance: NovaFinance,
+  mail:    NovaMail,
+  // ai:      NovaAI,  // falls benötigt
+}
+
+// **3. Computed, das die richtige Komponente liefert**
+const currentComponent = computed(() => appComponents[currentApp.value] || null)
+
 
 const user = ref({})
 const collapsed = ref(false)
