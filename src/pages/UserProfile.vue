@@ -1,16 +1,17 @@
 <template>
   <div class="min-h-screen bg-gray-100 dark:bg-nn-darkgray relative text-black dark:text-white">
     <!-- Header -->
-    <div class="relative h-64 bg-nn-indigo">
+    <div class="relative h-20 bg-nn-indigo">
+      <!-- Title -->
       <div class="absolute bottom-0 left-0 p-6 text-white">
         <h1 class="text-3xl font-bold">
-        {{ user?.company || 'Profilübersicht' }}
+          {{ user?.company || 'Profilübersicht' }}
         </h1>
       </div>
       <!-- Avatar -->
-      <div class="absolute left-1/2 transform -translate-x-1/2 -bottom-20">
+      <div class="absolute left-1/2 transform -translate-x-1/2 -bottom-12">
         <div
-          class="h-40 w-40 rounded-full border-4 border-white overflow-hidden shadow cursor-pointer"
+          class="h-24 w-24 rounded-full border-4 border-white overflow-hidden shadow cursor-pointer"
           @click="showAvatarModal = true"
         >
           <img
@@ -29,166 +30,117 @@
       </div>
     </div>
 
-    <!-- Avatar Upload Modal -->
-    <div v-if="showAvatarModal" class="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full relative">
-        <button @click="showAvatarModal = false" class="absolute top-2 right-3 text-gray-500 hover:text-red-500 text-xl">×</button>
-        <h2 class="text-xl font-semibold mb-4 text-center">Avatar hochladen</h2>
-        <div
-          class="border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
-          @click="triggerFileSelect"
-        >
-          <p v-if="!previewUrl">Klicke hier oder ziehe eine Datei hinein</p>
-          <img v-if="previewUrl" :src="previewUrl" class="mx-auto max-h-40 rounded" />
+    <!-- Flex-Container für Sidebar und Main-Bereich -->
+      <div class="flex"> <!-- pt-12 um Platz für Avatar zu berücksichtigen -->
+      <!-- Sidebar -->
+      <aside
+        :class="[
+          'h-[calc(100vh-5rem)] bg-white dark:bg-nn-darkgray dark:text-white shadow-lg p-4 flex-shrink-0 transition-all duration-300 flex flex-col justify-between overflow-y-auto',
+          collapsed ? 'w-20' : 'w-64'
+        ]"
+      >
+      <!-- Toggle & App Buttons -->
+        <div>
+          <button
+            @click="collapsed = !collapsed"
+            class="mb-4 px-2 py-1 bg-nn-indigo text-white rounded w-full hover:bg-nn-neon-teal transition text-sm"
+          >
+            {{ collapsed ? '▶' : '◀ Sidebar' }}
+          </button>
+          <!-- Expandierte Sidebar -->
+          <ul class="space-y-2" v-if="!collapsed">
+            <li v-for="app in ['lead','finance','ai','mail']" :key="app">
+              <button
+                @click="currentApp = app"
+                :class="[
+                  'w-full text-left px-4 py-2 rounded transition',
+                  currentApp === app
+                    ? 'bg-nn-indigo text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-nn-indigo hover:text-white'
+                ]"
+              >
+                {{ {
+                  lead: 'NovaLead',
+                  finance: 'NovaFinance',
+                  ai: 'NovaAI',
+                  mail: 'NovaMail'
+                }[app] }}
+              </button>
+            </li>
+            <!-- Theme-Dropdown bleibt unverändert -->
+            <li class="relative">
+              <button
+                @click="showThemeDropdown = !showThemeDropdown"
+                class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition text-left"
+              >
+                <span v-if="theme === 'light'">☀ Hellmodus</span>
+                <span v-else-if="theme === 'dark'">🌙 Dunkelmodus</span>
+                <span v-else>🖥️ Systemmodus</span>
+              </button>
+              <ul
+                v-if="showThemeDropdown"
+                class="absolute z-50 mt-1 left-0 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow text-sm"
+              >
+                <li><button @click="setTheme('light')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">☀ Hellmodus</button></li>
+                <li><button @click="setTheme('dark')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">🌙 Dunkelmodus</button></li>
+                <li><button @click="setTheme('system')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">🖥️ Systemmodus</button></li>
+              </ul>
+            </li>
+          </ul>
+
+          <!-- Kollabierte Sidebar -->
+          <ul class="space-y-2" v-else>
+            <li v-for="item in [
+              { key:'lead',    icon:'L', title:'NovaLead'    },
+              { key:'finance', icon:'F', title:'NovaFinance' },
+              { key:'ai',      icon:'A', title:'NovaAI'      },
+              { key:'mail',    icon:'M', title:'NovaMail'    }
+            ]" :key="item.key">
+              <button
+                @click="currentApp = item.key"
+                :class="[
+                  'w-full h-10 rounded-full text-sm font-bold transition',
+                  currentApp === item.key
+                    ? 'bg-nn-indigo text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-nn-indigo hover:text-white'
+                ]"
+                :title="item.title"
+              >
+                {{ item.icon }}
+              </button>
+            </li>
+            <!-- Screensaver & Logout & Darkmode Buttons -->
+            <li><button @click="toggleScreensaver" class="...">🌙</button></li>
+            <li><button @click="logout" class="...">⎋</button></li>
+            <li><button @click="toggleDarkMode" class="...">{{ theme === 'dark' ? '☀' : '🌙' }}</button></li>
+          </ul>
         </div>
-        <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileChange" />
-        <button
-          class="mt-4 w-full bg-nn-indigo text-white py-2 px-4 rounded hover:bg-nn-neon-teal transition"
-          @click="confirmUpload"
-        >
-          Speichern
-        </button>
-      </div>
-    </div>
 
-    <!-- Hauptlayout -->
-    <div class="flex">
-<aside
-  :class="[
-    'h-[calc(100vh-16rem)] bg-white dark:bg-nn-darkgray dark:text-white shadow-lg p-4 transition-all duration-300 flex flex-col justify-between overflow-y-auto',
-    collapsed ? 'w-20' : 'w-64'
-  ]"
->
-  <!-- Toggle & App Buttons -->
-  <div>
-    <button
-      @click="collapsed = !collapsed"
-      class="mb-4 px-2 py-1 bg-nn-indigo text-white rounded w-full hover:bg-nn-neon-teal transition text-sm"
-    >
-      {{ collapsed ? '▶' : '◀ Sidebar' }}
-    </button>
+        <!-- Screensaver Button ganz unten -->
+        <div class="mb-4" v-if="!collapsed">
+          <button
+            @click="toggleScreensaver"
+            class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
+          >
+            Screensaver {{ screensaverActive ? 'deaktivieren' : 'aktivieren' }}
+          </button>
+        </div>
 
-    <!-- Expanded Sidebar -->
-    <ul class="space-y-2" v-if="!collapsed">
-      <li v-for="app in [
-          { key: 'lead', label: 'NovaLead' },
-          { key: 'finance', label: 'NovaFinance' },
-          { key: 'ai', label: 'NovaAI' },
-          { key: 'mail', label: 'NovaMail' }
-        ]" :key="app.key">
-        <button
-          @click="currentApp = app.key"
-          :class="[
-            'w-full text-left px-4 py-2 rounded transition',
-            currentApp === app.key
-              ? 'bg-nn-indigo text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-nn-indigo hover:text-white'
-          ]"
-        >
-          {{ app.label }}
-        </button>
-      </li>
-
-      <!-- Theme Dropdown -->
-      <li class="relative">
-        <button
-          @click="showThemeDropdown = !showThemeDropdown"
-          class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition text-left"
-        >
-          <span v-if="theme === 'light'">☀ Hellmodus</span>
-          <span v-else-if="theme === 'dark'">🌙 Dunkelmodus</span>
-          <span v-else>🖥️ Systemmodus</span>
-        </button>
-        <ul
-          v-if="showThemeDropdown"
-          class="absolute z-50 mt-1 left-0 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow text-sm"
-        >
-          <li><button @click="setTheme('light')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">☀ Hellmodus</button></li>
-          <li><button @click="setTheme('dark')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">🌙 Dunkelmodus</button></li>
-          <li><button @click="setTheme('system')" class="w-full text-left px-4 py-2 hover:bg-nn-neon-teal">🖥️ Systemmodus</button></li>
-        </ul>
-      </li>
-    </ul>
-
-    <!-- Collapsed Sidebar -->
-    <ul class="space-y-2" v-else>
-      <li v-for="app in [
-          { key: 'lead', label: 'L' },
-          { key: 'finance', label: 'F' },
-          { key: 'ai', label: 'A' },
-          { key: 'mail', label: 'M' }
-        ]" :key="app.key">
-        <button
-          @click="currentApp = app.key"
-          :class="[
-            'w-full h-10 rounded-full text-sm font-bold transition',
-            currentApp === app.key
-              ? 'bg-nn-indigo text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-nn-indigo hover:text-white'
-          ]"
-          :title="`Nova${app.label === 'L' ? 'Lead' : app.label === 'F' ? 'Finance' : app.label === 'A' ? 'AI' : 'Mail'}`"
-        >
-          {{ app.label }}
-        </button>
-      </li>
-      <li>
-        <button
-          @click="toggleScreensaver"
-          class="w-full h-10 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-full text-sm font-bold hover:bg-nn-indigo hover:text-white transition"
-          title="Screensaver aktivieren"
-        >🌙</button>
-      </li>
-      <li>
-        <button
-          @click="logout"
-          class="w-full h-10 bg-red-100 text-red-600 rounded-full text-sm font-bold hover:bg-red-600 hover:text-white transition"
-          title="Logout"
-        >⎋</button>
-      </li>
-      <li>
-        <button
-          @click="toggleDarkMode"
-          class="w-full h-10 rounded-full text-sm font-bold transition"
-          :class="[
-            'transition',
-            theme === 'dark'
-              ? 'bg-nn-indigo text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-nn-indigo hover:text-white'
-          ]"
-          :title="theme === 'dark' ? 'Hellmodus' : 'Dunkelmodus'"
-        >
-          <span v-if="theme === 'dark'">☀</span>
-          <span v-else>🌙</span>
-        </button>
-      </li>
-    </ul>
-  </div>
-
-  <!-- Screensaver Button -->
-  <div class="mb-4" v-if="!collapsed">
-    <button
-      @click="toggleScreensaver"
-      class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded hover:bg-nn-indigo hover:text-white transition"
-    >
-      Screensaver {{ screensaverActive ? 'deaktivieren' : 'aktivieren' }}
-    </button>
-  </div>
-
-  <!-- Logout Button -->
-  <div class="pt-4 border-t border-gray-200 dark:border-gray-600" v-if="!collapsed">
-    <button
-      @click="logout"
-      class="w-full px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-600 hover:text-white transition"
-    >
-      Logout
-    </button>
-  </div>
-</aside>
+        <!-- Logout Button unten -->
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-600" v-if="!collapsed">
+          <button
+            @click="logout"
+            class="w-full px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-600 hover:text-white transition"
+          >
+            Logout
+          </button>
+        </div>
+      </aside>
 
  
 
       <!-- Hauptinhalt -->
-      <main class="flex-1 px-6 mt-32 bg-white dark:bg-nn-darkgray text-black dark:text-white">
+      <main class="flex-1 px-6 mt-12 bg-white dark:bg-nn-darkgray text-black dark:text-white">
         <div class="flex justify-end mb-4">
           <button
             @click="showProfile = !showProfile"
