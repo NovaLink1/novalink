@@ -10,24 +10,35 @@
       </div>
       <!-- Avatar -->
       <div class="absolute left-1/2 transform -translate-x-1/2 -bottom-12">
-        <div
-          class="h-24 w-24 rounded-full border-4 border-white overflow-hidden shadow cursor-pointer"
-          @click="showAvatarModal = true"
-        >
-          <img
-            v-if="user?.avatar_url"
-            :src="user.avatar_url"
-            alt="Avatar"
-            class="w-full h-full object-cover"
-          />
-          <div
-            v-else
-            class="bg-gray-300 h-full w-full flex items-center justify-center text-4xl text-white font-semibold"
-          >
-            {{ user?.name?.charAt(0)?.toUpperCase() || '?' }}
-          </div>
-        </div>
-      </div>
+  <div
+    class="h-24 w-24 rounded-full border-4 border-white overflow-hidden shadow cursor-pointer"
+    @click="triggerFileSelect"
+  >
+    <img
+    v-if="user.avatar_url"
+    :src="uploadsBase + user.avatar_url"
+    alt="Avatar"
+  />
+
+
+    <div
+      v-else
+      class="bg-gray-300 h-full w-full flex items-center justify-center text-4xl text-white font-semibold"
+    >
+      {{ user?.name?.charAt(0)?.toUpperCase() || '?' }}
+    </div>
+  </div>
+
+  <!-- Verstecktes File-Input für den Upload -->
+  <input
+    type="file"
+    ref="fileInput"
+    class="hidden"
+    accept="image/*"
+    @change="handleFileChange"
+  />
+</div>
+
     </div>
 
     <!-- Flex-Container für Sidebar und Main-Bereich -->
@@ -177,6 +188,36 @@
 
 
   </div>
+  <!-- Avatar-Upload Modal -->
+<div
+  v-if="showAvatarModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+    <h2 class="mb-4 text-lg font-bold dark:text-white">Avatar hochladen</h2>
+    <img
+      v-if="previewUrl"
+      :src="previewUrl"
+      alt="Vorschau"
+      class="w-32 h-32 rounded-full mb-4 object-cover"
+    />
+    <div class="flex space-x-4">
+      <button
+        @click="confirmUpload"
+        class="px-4 py-2 bg-nn-indigo text-white rounded hover:bg-nn-neon-teal transition"
+      >
+        Bestätigen
+      </button>
+      <button
+        @click="showAvatarModal = false"
+        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition"
+      >
+        Abbrechen
+      </button>
+    </div>
+  </div>
+</div>
+
 </template>
 
 <script setup>
@@ -207,6 +248,8 @@ const currentComponent = computed(() => appComponents[currentApp.value] || null)
 
 
 const user = ref({})
+// Basispfad für alle statischen Uploads (Avatare), ohne das /api-Segment
+const uploadsBase = import.meta.env.VITE_API_URL.replace('/api', '')
 const collapsed = ref(false)
 const showProfile = ref(true)
 const screensaverActive = ref(false)
@@ -227,6 +270,7 @@ function handleFileChange(e) {
   if (file) {
     selectedFile.value = file
     previewUrl.value = URL.createObjectURL(file)
+    showAvatarModal.value = true      // Modal jetzt anzeigen!
   }
 }
 
@@ -240,11 +284,7 @@ async function confirmUpload() {
     const formData = new FormData()
     formData.append('file', selectedFile.value)
 
-    const response = await api.post('/users/upload-avatar', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    const response = await api.post('/users/upload-avatar', formData)
 
     user.value.avatar_url = `${response.data.avatar_url}?t=${Date.now()}`
     alert('Avatar wurde erfolgreich hochgeladen.')

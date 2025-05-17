@@ -25,6 +25,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+           // Proxy für alle API-Routen
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   resolve: {
